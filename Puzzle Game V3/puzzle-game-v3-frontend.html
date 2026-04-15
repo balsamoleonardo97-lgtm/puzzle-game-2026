@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desbloquea el Campeón - Argentina 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #87ceeb 0%, #e0f6ff 100%);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            color: white;
+            padding: 24px 16px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .header .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+
+        .intro-box {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+            border-left: 4px solid #FFD700;
+        }
+
+        .intro-box p {
+            margin-bottom: 8px;
+        }
+
+        .intro-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .intro-box .reward {
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .intro-box .jackpot {
+            font-weight: bold;
+            color: #FF6B6B;
+            font-size: 14px;
+        }
+
+        .main-content {
+            padding: 16px;
+        }
+
+        .game-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .info-card {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .info-label {
+            display: block;
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .info-value {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            color: #1a73e8;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1a73e8, #5cb85c);
+            transition: width 0.3s ease;
+        }
+
+        .price-tier-info {
+            background: #e8f4f8;
+            border: 1px solid #1a73e8;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            color: #0d47a1;
+        }
+
+        .success-notification {
+            background: #5cb85c;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .error-notification {
+            background: #d9534f;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #1a73e8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .grid-wrapper {
+            margin-bottom: 24px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(32, 1fr);
+            gap: 2px;
+            background: #333;
+            padding: 2px;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), linear-gradient(180deg, #0d47a1 0%, #1a73e8 50%, #87ceeb 100%);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .block {
+            aspect-ratio: 1;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a73e8;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .block:hover:not(.unlocked) {
+            background: #0d47a1;
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.02);
+        }
+
+        .block.unlocked {
+            opacity: 0;
+            cursor: default;
+            background: transparent;
+            border-color: transparent;
+        }
+
+        .complete-box {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 3px solid #28a745;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .complete-box h2 {
+            margin-bottom: 12px;
+            font-size: 20px;
+            color: #155724;
+        }
+
+        .complete-box p {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #155724;
+        }
+
+        .jackpot-announcement {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border: 3px solid #FF6B6B;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 16px;
+            animation: pulse 2s infinite;
+        }
+
+        .jackpot-amount {
+            color: #FF0000;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #1a73e8;
+        }
+
+        .price-display {
+            background: #f0f7ff;
+            border: 2px solid #1a73e8;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .price-display .amount {
+            font-size: 28px;
+            font-weight: bold;
+            color: #d9534f;
+        }
+
+        .payment-section {
+            margin-bottom: 16px;
+        }
+
+        .payment-label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .method-button {
+            padding: 12px;
+            border: 2px solid #ddd;
+            background: #f9f9f9;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+            color: #333;
+        }
+
+        .method-button:hover {
+            border-color: #1a73e8;
+            background: #f0f7ff;
+        }
+
+        .method-button.active {
+            border-color: #1a73e8;
+            background: #009ee3;
+            color: white;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .pay-button {
+            background: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .pay-button:hover {
+            background: #4cae4c;
+        }
+
+        .pay-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .cancel-button {
+            background: #ddd;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .footer {
+            padding: 16px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .reset-button {
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            .game-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 Desbloquea el Campeón 🏆</h1>
+            <p class="subtitle">Argentina Campeón Mundial 2026</p>
+            <div class="intro-box">
+                <p>Desbloquea bloques pagando. Precio dinámico desde <strong>$500 ARS</strong> hasta <strong>$2.000 ARS</strong>.</p>
+                <p class="jackpot">💰 <strong>¡PREMIO FINAL: $500.000 PESOS!</strong></p>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="game-info">
+                <div class="info-card">
+                    <span class="info-label">Progreso</span>
+                    <span class="info-value"><span id="unlockedCount">0</span>/1024</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <span class="info-label">Precio Actual</span>
+                    <span class="info-value" id="currentPrice">$500</span>
+                </div>
+
+                <div class="info-card">
+                    <span class="info-label">Tu ID</span>
+                    <span class="info-value" id="userIdDisplay" style="font-size: 12px;">-</span>
+                </div>
+            </div>
+
+            <div class="price-tier-info" id="priceTierInfo">
+                Cargando información...
+            </div>
+
+            <div id="successNotification" class="success-notification hidden"></div>
+            <div id="errorNotification" class="error-notification hidden"></div>
+
+            <div class="grid-wrapper">
+                <div class="puzzle-grid" id="puzzleGrid"></div>
+            </div>
+
+            <div id="completeBox" class="complete-box hidden">
+                <h2>🎉 ¡IMAGEN DESBLOQUEADA! 🎉</h2>
+                <p>¡Felicidades! Desbloqueaste todos los bloques.</p>
+            </div>
+
+            <div id="jackpotBox" class="jackpot-announcement hidden">
+                <h3>🎊 ¡¡¡PREMIO FINAL!!! 🎊</h3>
+                <div class="jackpot-amount">$500.000</div>
+                <p style="color: #8B0000; font-size: 12px; margin-top: 8px;">¡Ganaste el premio! Se acreditará en tu cuenta.</p>
+            </div>
+
+            <div class="footer">
+                <button class="reset-button" onclick="resetLocalData()">🔄 Limpiar Datos Locales</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-title">Desbloquear Bloque #<span id="blockNumber">0</span></h2>
+
+            <div class="price-display">
+                <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Precio:</div>
+                <div class="amount" id="modalPrice">$500</div>
+            </div>
+
+            <div class="payment-section">
+                <label class="payment-label">Método de pago:</label>
+                <div class="method-grid">
+                    <button class="method-button active" data-method="mercadopago" onclick="selectMethod('mercadopago')">💳 Mercado Pago (Recomendado)</button>
+                    <button class="method-button" data-method="stripe" onclick="selectMethod('stripe')">💳 Stripe</button>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="pay-button" id="payButton" onclick="processPayment()">
+                    <span id="payButtonText">✓ Ir a Pagar</span>
+                </button>
+                <button class="cancel-button" onclick="closePaymentModal()">✕ Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración
+        const API_BASE_URL = 'http://localhost:3000'; // Cambiar cuando despliegues
+        const GRID_SIZE = 32;
+        const BLOCKS_TOTAL = 1024;
+        const JACKPOT_PRIZE = 500000;
+        const NUM_SPECIAL_BLOCKS = 5;
+
+        const PRICE_TIERS = [
+            { min: 0, max: 100, price: 500 },
+            { min: 100, max: 200, price: 1000 },
+            { min: 200, max: 300, price: 1500 },
+            { min: 300, max: 400, price: 1700 },
+            { min: 400, max: 500, price: 1800 },
+            { min: 500, max: 600, price: 1800 },
+            { min: 600, max: 700, price: 1800 },
+            { min: 700, max: 800, price: 1800 },
+            { min: 800, max: 900, price: 2000 },
+            { min: 900, max: 1024, price: 2000 }
+        ];
+
+        // Estado
+        let unlockedBlocks = new Set();
+        let specialBlocks = new Set();
+        let userId = null;
+        let selectedPaymentMethod = 'mercadopago';
+        let selectedBlock = null;
+        let gameState = null;
+
+        // Inicializar
+        async function init() {
+            try {
+                userId = localStorage.getItem('userId');
+                if (!userId) {
+                    userId = 'user_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('userId', userId);
+                }
+
+                document.getElementById('userIdDisplay').textContent = userId.substring(0, 12);
+                
+                await loadGameState();
+                renderGrid();
+                updateDisplay();
+            } catch (error) {
+                console.error('Error al inicializar:', error);
+                showError('Error al conectar con el servidor');
+            }
+        }
+
+        // Cargar estado del juego desde servidor
+        async function loadGameState() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/game-state`);
+                if (!response.ok) throw new Error('Error al cargar estado');
+                
+                gameState = await response.json();
+                unlockedBlocks = new Set(gameState.unlockedBlocks || []);
+                
+                // Cargar bloques especiales
+                const specialResp = await fetch(`${API_BASE_URL}/api/special-blocks`);
+                if (specialResp.ok) {
+                    const specialData = await specialResp.json();
+                    specialBlocks = new Set(specialData.specialBlocks || []);
+                }
+            } catch (error) {
+                console.error('Error cargando estado:', error);
+                // Fallback a estado local si no hay servidor
+                const saved = localStorage.getItem('unlockedBlocks');
+                if (saved) {
+                    unlockedBlocks = new Set(JSON.parse(saved));
+                }
+            }
+        }
+
+        // Obtener precio actual
+        function getCurrentPrice() {
+            const unlockedCount = unlockedBlocks.size;
+            for (let tier of PRICE_TIERS) {
+                if (unlockedCount >= tier.min && unlockedCount < tier.max) {
+                    return tier.price;
+                }
+            }
+            return 2000;
+        }
+
+        // Obtener info del tramo
+        function getPriceTierInfo() {
+            const unlockedCount = unlockedBlocks.size;
+            for (let tier of PRICE_TIERS) {
+                if (unlockedCount >= tier.min && unlockedCount < tier.max) {
+                    const remaining = tier.max - unlockedCount;
+                    return `Tramo: Bloques ${tier.min}-${tier.max} | Precio: $${tier.price.toLocaleString('es-AR')} | Restan ${remaining} bloques en este tramo`;
+                }
+            }
+            return `Tramo máximo | Precio: $2.000`;
+        }
+
+        // Renderizar grilla
+        function renderGrid() {
+            const grid = document.getElementById('puzzleGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < BLOCKS_TOTAL; i++) {
+                const block = document.createElement('div');
+                block.className = 'block';
+                if (unlockedBlocks.has(i)) {
+                    block.classList.add('unlocked');
+                }
+                block.onclick = () => openPaymentModal(i);
+                grid.appendChild(block);
+            }
+        }
+
+        // Actualizar display
+        function updateDisplay() {
+            const progressPercent = (unlockedBlocks.size / BLOCKS_TOTAL) * 100;
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+            document.getElementById('unlockedCount').textContent = unlockedBlocks.size;
+            
+            const currentPrice = getCurrentPrice();
+            document.getElementById('currentPrice').textContent = '$' + currentPrice.toLocaleString('es-AR');
+            document.getElementById('priceTierInfo').textContent = getPriceTierInfo();
+
+            if (unlockedBlocks.size === BLOCKS_TOTAL) {
+                document.getElementById('completeBox').classList.remove('hidden');
+                document.getElementById('jackpotBox').classList.remove('hidden');
+            }
+        }
+
+        // Abrir modal de pago
+        function openPaymentModal(blockIndex) {
+            if (unlockedBlocks.has(blockIndex)) return;
+
+            selectedBlock = blockIndex;
+            const currentPrice = getCurrentPrice();
+            
+            document.getElementById('blockNumber').textContent = blockIndex + 1;
+            document.getElementById('modalPrice').textContent = '$' + currentPrice.toLocaleString('es-AR');
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        // Cerrar modal
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            selectedBlock = null;
+        }
+
+        // Seleccionar método
+        function selectMethod(method) {
+            document.querySelectorAll('.method-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-method="${method}"]`).classList.add('active');
+            selectedPaymentMethod = method;
+        }
+
+        // Procesar pago
+        async function processPayment() {
+            if (selectedBlock === null) return;
+
+            const payButton = document.getElementById('payButton');
+            const payButtonText = document.getElementById('payButtonText');
+            
+            try {
+                payButton.disabled = true;
+                payButtonText.textContent = 'Procesando...';
+
+                const price = getCurrentPrice();
+
+                // Crear preferencia de pago
+                const response = await fetch(`${API_BASE_URL}/api/create-preference`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        blockIndex: selectedBlock,
+                        amount: price,
+                        currency: 'ars',
+                        method: selectedPaymentMethod,
+                        userId: userId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al crear preferencia de pago');
+                }
+
+                const data = await response.json();
+
+                if (selectedPaymentMethod === 'mercadopago' && data.initPoint) {
+                    // Redirigir a Mercado Pago
+                    window.location.href = data.initPoint;
+                } else if (selectedPaymentMethod === 'stripe' && data.clientSecret) {
+                    // Implementar Stripe (requiere stripe.js)
+                    showError('Stripe aún no implementado. Usa Mercado Pago.');
+                } else {
+                    throw new Error('Respuesta inválida del servidor');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error al procesar pago: ' + error.message);
+                payButton.disabled = false;
+                payButtonText.textContent = '✓ Ir a Pagar';
+            }
+        }
+
+        // Mostrar éxito
+        function showSuccess(message) {
+            const notification = document.getElementById('successNotification');
+            notification.textContent = message;
+            notification.classList.remove('hidden');
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Mostrar error
+        function showError(message) {
+            const notification = document.getElementById('errorNotification');
+            notification.textContent = message;
+            notification.classList.remove('hidden');
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Limpiar datos locales
+        function resetLocalData() {
+            if (confirm('¿Limpiar datos locales?')) {
+                localStorage.removeItem('unlockedBlocks');
+                location.reload();
+            }
+        }
+
+        // Verificar si hay parámetros de retorno de pago
+        async function checkPaymentReturn() {
+    const params = new URLSearchParams(window.location.search);
+    const paymentId = params.get('payment_id');
+    const status = params.get('status');
+    const blockIndex = params.get('block');
+    const userIdParam = params.get('user');
+
+    if (paymentId && status === 'approved') {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/confirm-payment`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    paymentId,
+                    blockIndex: Number(blockIndex),
+                    userId: userIdParam
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showSuccess('¡Pago confirmado! Bloque desbloqueado.');
+
+                await loadGameState();
+                renderGrid();
+                updateDisplay();
+            } else {
+                showError(data.error);
+            }
+
+        } catch (error) {
+            console.error(error);
+            showError('Error confirmando el pago');
+        }
+                // Limpiar parámetros
+                history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        // Inicializar al cargar
+        init();
+        checkPaymentReturn();
+    </script>
+</body>
+</html>
